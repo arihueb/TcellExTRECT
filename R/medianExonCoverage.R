@@ -25,12 +25,17 @@ medianExonCoverage <- function(vdj.region.df, exons.selected, median.k = 50, med
   median.values.exons <- sapply(vdj.region.df.filt.exons.median,
                                 function(x) median(x$reads, na.rm = TRUE))
   exon.remove <- which(median.values.exons < median.thresh | is.na(median.values.exons))
-  if(length(exon.remove) > 0){
+  if(length(exon.remove) > 0) {
     vdj.region.df.filt.exons.median <- vdj.region.df.filt.exons.median[-exon.remove]
   }
   vdj.region.df.filt.exons.median <- Reduce(rbind, vdj.region.df.filt.exons.median)
 
-  # Get rid of any repeated rows that might exist - in theory I don't think they will
-  vdj.region.df.filt.exons.median <- dplyr::distinct(vdj.region.df.filt.exons.median)
-  return(list(vdj.region.df.filt.exons.median, exon.remove))
+  if (is.null(vdj.region.df.filt.exons.median)) {
+    vdj.region.df.filt.exons.median <- tibble::tibble(pos = numeric(), reads = numeric())
+    return(list(vdj.region.df.filt.exons.median, exon.remove))
+  } else {
+    # Get rid of any repeated rows that might exist - in theory I don't think they will
+    vdj.region.df.filt.exons.median <- dplyr::distinct(vdj.region.df.filt.exons.median)
+    return(list(vdj.region.df.filt.exons.median, exon.remove))
+  }
 }
