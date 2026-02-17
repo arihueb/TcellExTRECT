@@ -40,7 +40,7 @@ Running T cell ExTRECT on your data is both fast and easy!
 library(TcellExTRECT)
 ```
 
-First take an aligned bam file (hg38 or hg19) of your choice
+First take an aligned bam/cram file (hg38 or hg19) of your choice
 
 ```r
 example_bam <- '/path/to/file.bam'
