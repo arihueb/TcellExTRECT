@@ -1,13 +1,14 @@
 #' Function to create TCRA coverage file from bams
 #'
-#' @param bamPath Path to bam file
-#' @param outPath Path to output directory
-#' @param vdj.seg Location of TCRA file
+#' @param bamPath    Path to bam file
+#' @param outPath    Path to output directory
+#' @param vdj.seg    Location of TCRA file
+#' @param formatFile Extension of the alignment file, either cram or bam. Default: bam
 #' @name getCovFromBam
 #' @export
 
 
-getCovFromBam <- function(bamPath, outPath, vdj.seg){
+getCovFromBam <- function(bamPath, outPath, vdj.seg, formatFile = "bam"){
   # Requires samtools to be installed and working!
   if(length(bamPath) != 1){
     stop('Please only input one bam file at a time')
@@ -17,17 +18,23 @@ getCovFromBam <- function(bamPath, outPath, vdj.seg){
     stop('Can not find bam file')
   }
 
+  if(!formatFile %in% c("bam", "cram")){
+    stop('formatFile needs to be one of "cram" or "bam"')
+  }
+
+
   vdj.start <- vdj.seg[vdj.seg$segName == 'all','start']
   vdj.end <- vdj.seg[vdj.seg$segName == 'all','end']
 
-  cov.name <- gsub('.bam','',basename(bamPath))
+  cov.name <- gsub(paste0('.',formatFile),'',basename(bamPath))
   cov.output.files <- paste0(outPath,cov.name, '_TCRA.txt')
 
-  # Check does bai file exist
-  bai.path <- paste0(bamPath,'.bai')
-  bai.path2 <- paste0(gsub('bam$','',bamPath),'bai')
-  if(!(file.exists(bai.path) | file.exists(bai.path2))){
-    stop('No index bai file found for bam, please index first before proceeding')
+  # Check and index file exist
+  index.extension <- ifelse(formatFile == "bam", ".bai", ".crai")
+  index.path <- paste0(bamPath,index.extension)
+  index.path2 <- paste0(gsub('bam$','',bamPath),index.extension)
+  if(!(file.exists(index.path ) | file.exists(index.path2))){
+    stop('No index file found for cram or bam, please index first before proceeding')
   }
 
   # Check if bam has chr or not before
